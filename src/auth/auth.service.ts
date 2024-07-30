@@ -15,19 +15,21 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { BcryptAdapter, JwtAdapter } from 'src/config/adapters';
 
 import { User, UserDocument } from 'src/data/schemas/user.schema';
+import { EmailService } from 'src/email/email.service';
 
 type HashPassword = (password: string) => string;
 type ComparePassword = (password: string, hash: string) => boolean;
 
 @Injectable()
 export class AuthService {
+	private comparePassword: ComparePassword = BcryptAdapter.compare;
+	private hashPasword: HashPassword = BcryptAdapter.hash;
+
 	constructor(
 		@InjectModel(User.name)
 		private UserModel: Model<UserDocument>,
+		private emailService: EmailService,
 	) {}
-
-	private comparePassword: ComparePassword = BcryptAdapter.compare;
-	private hashPasword: HashPassword = BcryptAdapter.hash;
 
 	async login(loginUserDto: LoginUserDto) {
 		const user = await this.UserModel.findOne({ email: loginUserDto.email });
@@ -66,7 +68,7 @@ export class AuthService {
 			throw new BadRequestException('El correo ya esta en uso');
 		}
 
-		const passwordHash = this.hashPasword(registerUserDto.password);
+		const passwordHash = await this.hashPasword(registerUserDto.password);
 		const newUser = new this.UserModel({
 			...registerUserDto,
 			password: passwordHash,
