@@ -15,13 +15,13 @@ export class Formatted {
 	}
 
 	static isArrayOfStrings(array: string[]): boolean {
-		return array.some((el) => typeof el !== 'string');
+		return array.some(el => typeof el !== 'string');
 	}
 
 	static validateArrayElements(
 		arrayToValidate: any[],
 		validElements: any[],
 	): boolean {
-		return arrayToValidate.every((element) => validElements.includes(element));
+		return arrayToValidate.every(element => validElements.includes(element));
 	}
 }

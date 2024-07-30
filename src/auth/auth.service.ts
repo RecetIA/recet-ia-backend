@@ -1,8 +1,4 @@
-import {
-	Injectable,
-	BadRequestException,
-	InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -12,19 +8,13 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 
-import { BcryptAdapter, JwtAdapter } from 'src/config/adapters';
-
 import { User, UserDocument } from 'src/data/schemas/user.schema';
+import { LoginUser } from './use-cases/login-user';
 import { EmailService } from 'src/email/email.service';
-
-type HashPassword = (password: string) => string;
-type ComparePassword = (password: string, hash: string) => boolean;
+import { RegisterUser } from './use-cases/register-user';
 
 @Injectable()
 export class AuthService {
-	private comparePassword: ComparePassword = BcryptAdapter.compare;
-	private hashPasword: HashPassword = BcryptAdapter.hash;
-
 	constructor(
 		@InjectModel(User.name)
 		private UserModel: Model<UserDocument>,
@@ -32,59 +22,11 @@ export class AuthService {
 	) {}
 
 	async login(loginUserDto: LoginUserDto) {
-		const user = await this.UserModel.findOne({ email: loginUserDto.email });
-
-		if (!user) {
-			throw new BadRequestException('Credenciales invalidas');
-		}
-
-		const isValidPassword = await this.comparePassword(
-			loginUserDto.password,
-			user.password,
-		);
-
-		if (!isValidPassword) {
-			throw new BadRequestException('Credenciales invalidas');
-		}
-
-		const token = await JwtAdapter.generateToken({
-			email: user.email,
-		});
-
-		if (!token) {
-			throw new InternalServerErrorException('Error al generar el token');
-		}
-
-		return {
-			user,
-			token,
-		};
+		return await new LoginUser(this.UserModel).execute(loginUserDto);
 	}
 
 	async register(registerUserDto: RegisterUserDto) {
-		const user = await this.UserModel.findOne({ email: registerUserDto.email });
-
-		if (user) {
-			throw new BadRequestException('El correo ya esta en uso');
-		}
-
-		const passwordHash = await this.hashPasword(registerUserDto.password);
-		const newUser = new this.UserModel({
-			...registerUserDto,
-			password: passwordHash,
-		});
-
-		const token = await JwtAdapter.generateToken({ email: newUser.email });
-
-		if (!token) {
-			throw new InternalServerErrorException('Error al generar el token');
-		}
-
-		await newUser.save();
-
-		return {
-			message: 'Te has registrado exitosamente',
-		};
+		return await new RegisterUser(this.UserModel).execute(registerUserDto);
 	}
 
 	//TODO: Function to change password

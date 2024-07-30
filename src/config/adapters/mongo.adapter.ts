@@ -10,7 +10,7 @@ export class MongoAdapter {
 			versionKey: false,
 			transform: function (_, ret) {
 				delete ret._id;
-				sensitiveProperties.forEach((property) => {
+				sensitiveProperties.forEach(property => {
 					delete ret[property];
 				});
 			},

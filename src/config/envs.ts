@@ -15,6 +15,8 @@ const envSchema = z.object({
 	MAILER_PORT: z.coerce.number().positive(),
 	MAILER_USER: z.string(),
 
+	FRONTEND_URL: z.string(),
+
 	CLOUDINARY_CLOUD_NAME: z.string(),
 	CLOUDINARY_API_KEY: z.string(),
 	CLOUDINARY_API_SECRET: z.string(),
