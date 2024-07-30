@@ -32,6 +32,5 @@ export class SeedService {
         )?.id,
       })),
     );
-    console.log('Seeding completed');
   }
 }
