@@ -25,6 +25,9 @@ module.exports = {
       'error',
       {
         'endOfLine': 'auto',
+        'useTabs': true,
+        'useSpace': true,
+        'tab-width': 2,
       }
     ]
   },

@@ -8,19 +8,19 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class RecipeService {
-  constructor(@InjectModel(Recipe.name) private recipeModel: Model<Recipe>) {}
+	constructor(@InjectModel(Recipe.name) private recipeModel: Model<Recipe>) {}
 
-  create(createRecipeDto: CreateRecipeDto) {
-    return 'This action adds a new recipe + ' + createRecipeDto;
-  }
+	create(createRecipeDto: CreateRecipeDto) {
+		return 'This action adds a new recipe + ' + createRecipeDto;
+	}
 
-  async findAll() {
-    console.log(await this.recipeModel.find().exec());
-    return await this.recipeModel.find().exec();
-  }
+	async findAll() {
+		console.log(await this.recipeModel.find().exec());
+		return await this.recipeModel.find().exec();
+	}
 
-  async findOne(id: string) {
-    console.log(await this.recipeModel.findById(id).exec());
-    return this.recipeModel.findById(id).exec();
-  }
+	async findOne(id: string) {
+		console.log(await this.recipeModel.findById(id).exec());
+		return this.recipeModel.findById(id).exec();
+	}
 }
