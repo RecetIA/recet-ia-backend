@@ -1,7 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
-import nodemailer, { Transporter } from 'nodemailer';
+import { Inject, Injectable } from '@nestjs/common';
+import { createTransport, Transporter } from 'nodemailer';
 
-interface EmailServiceOptions {
+export interface EmailServiceOptions {
 	mailerHost: string;
 	mailerPort: number;
 	mailerUser: string;
@@ -26,19 +26,20 @@ interface Attachment {
 export class EmailService {
 	private transporter: Transporter;
 	private postToProvider: boolean;
-	private readonly logger = new Logger(EmailService.name);
 
-	constructor(options: EmailServiceOptions) {
+	constructor(@Inject('EmailServiceOptions') options: EmailServiceOptions) {
 		this.postToProvider = options.postToProvider;
 
-		this.transporter = nodemailer.createTransport({
+		this.transporter = createTransport({
 			host: options.mailerHost,
 			port: options.mailerPort,
-			secure: true,
+			secure: false,
 			auth: {
 				user: options.mailerUser,
 				pass: options.senderEmailPassword,
 			},
+			debug: true,
+			logger: true,
 		});
 	}
 
@@ -60,11 +61,9 @@ export class EmailService {
 		};
 
 		try {
-			const sentInformation = await this.transporter.sendMail(mailOptions);
-			this.logger.log(`Email sent successfully: ${sentInformation.response}`);
+			await this.transporter.sendMail(mailOptions);
 			return true;
 		} catch (error) {
-			this.logger.error('Error sending email', error.stack);
 			return false;
 		}
 	}

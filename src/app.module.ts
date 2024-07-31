@@ -3,9 +3,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 
 import { RecipeModule } from './recipe/recipe.module';
-import { envs } from './config/envs';
 import { AuthModule } from './auth/auth.module';
-import { EmailService } from './email/email.service';
+import { envs } from './config/envs';
 
 @Module({
 	imports: [
@@ -17,6 +16,5 @@ import { EmailService } from './email/email.service';
 		AuthModule,
 	],
 	controllers: [],
-	providers: [EmailService],
 })
 export class AppModule {}

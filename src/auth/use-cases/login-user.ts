@@ -32,13 +32,16 @@ export class LoginUser {
 			throw new BadRequestException('El usuario no existe');
 		}
 
+		if (!user.emailValidated)
+			throw new BadRequestException('Tu cuenta no ha sido confirmada');
+
 		const isValidPassword = await this.comparePassword(
 			loginUserDto.password,
 			user.password,
 		);
 
 		if (!isValidPassword) {
-			throw new BadRequestException('Credenciales invalidas');
+			throw new BadRequestException('El password es incorrecto');
 		}
 
 		try {

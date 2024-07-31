@@ -13,7 +13,6 @@ const envSchema = z.object({
 	MAILER_EMAIL: z.string(),
 	MAILER_SECRET_KEY: z.string(),
 	MAILER_PORT: z.coerce.number().positive(),
-	MAILER_USER: z.string(),
 
 	FRONTEND_URL: z.string(),
 

@@ -26,7 +26,7 @@ export class User {
 	@Prop({ type: String, trim: true, default: null })
 	img: string;
 
-	@Prop({ type: Recipe, default: [] })
+	@Prop({ type: [Recipe], default: [] })
 	favoriteRecipe: Recipe[];
 }
 
