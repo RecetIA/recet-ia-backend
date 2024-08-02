@@ -108,9 +108,7 @@ export class GenerateRecipe implements GenerateRecipeUseCase {
     `;
 
     if (dto.ingredients.length > 0) {
-      promptRecipe += `- Ingredientes Disponibles: ${Formatted.fromArrayToString(
-        dto.ingredients,
-      )}.\n`;
+      promptRecipe += `- Ingredientes Disponibles: ${Formatted.fromArrayToString(dto.ingredients)}.\n`;
     }
 
     if (dto.lifeStage) {
@@ -157,7 +155,7 @@ export class GenerateRecipe implements GenerateRecipeUseCase {
 
       const createdRecipe = new this.recipeModel({
         ...recipeResponse,
-        creator: dto.creator,
+        creator: dto.user.id,
       });
       createdRecipe.save();
 

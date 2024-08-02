@@ -1,4 +1,5 @@
 import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
+import { UserResponse } from 'src/interfaces/user.interface';
 
 export class AddToFavoriteDto {
   @IsString()
@@ -6,8 +7,5 @@ export class AddToFavoriteDto {
   @IsMongoId({ message: 'Invalid recipe id' })
   recipeId: string;
 
-  @IsString()
-  @IsNotEmpty()
-  @IsMongoId({ message: 'Invalid creator id' })
-  creator: string;
+  user: UserResponse;
 }

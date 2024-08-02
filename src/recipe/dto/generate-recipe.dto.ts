@@ -7,6 +7,7 @@ import {
   ArrayNotEmpty,
   IsNotEmpty,
 } from 'class-validator';
+import { UserResponse } from 'src/interfaces/user.interface';
 
 enum LifeStage {
   general = '',
@@ -84,7 +85,7 @@ enum LifeStyles {
 export class GenerateRecipeDto {
   @IsNotEmpty()
   @IsMongoId()
-  creator: string;
+  user: UserResponse;
 
   @IsArray()
   @ArrayNotEmpty()

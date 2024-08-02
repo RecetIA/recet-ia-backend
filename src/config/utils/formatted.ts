@@ -3,9 +3,9 @@ export class Formatted {
     return array.join(separator);
   }
 
-  static fromStringToArray(text: string): any[] {
+  static fromStringToArray(text: string | string[]): any[] {
     if (!text) return [];
-    return JSON.parse(text);
+    return JSON.parse(text as string);
   }
 
   static isArrayAsString(text: string): boolean {

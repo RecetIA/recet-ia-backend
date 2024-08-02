@@ -6,3 +6,7 @@ export interface MessageResponse {
 export interface ImageResponse {
   urlImage: string;
 }
+
+export interface EmailResponse {
+  email: string;
+}

@@ -9,7 +9,9 @@ export class MongoAdapter {
       virtuals: true,
       versionKey: false,
       transform: function (_, ret) {
+        ret.id = ret._id;
         delete ret._id;
+
         sensitiveProperties.forEach((property) => {
           delete ret[property];
         });
@@ -22,6 +24,10 @@ export class MongoAdapter {
   }
 
   static toMongoID(id: string) {
+    return new mongoose.Types.ObjectId(id);
+  }
+
+  static toMongoIdSchema(id: string) {
     return new Schema.Types.ObjectId(id);
   }
 }

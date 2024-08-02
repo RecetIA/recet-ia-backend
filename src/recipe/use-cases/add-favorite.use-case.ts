@@ -21,26 +21,26 @@ export class AddToFavorite implements AddToFavoriteUseCase {
   ) {}
 
   async execute(dto: AddToFavoriteDto): Promise<MessageResponse> {
-    const user = await this.userModel.findById(dto.creator).exec();
+    const user = await this.userModel.findById(dto.user.id).exec();
     if (!user) throw new NotFoundException('User not found');
 
     const recipe = await this.recipeModel.findById(dto.recipeId).exec();
     if (!recipe) throw new NotFoundException('Recipe not found');
 
     const recipeId = MongoAdapter.toMongoID(dto.recipeId);
-    const createdUser = new this.userModel(user);
 
     const isFavorite = user.favoriteRecipes.some(
       (favorite) => favorite.toString() === dto.recipeId,
     );
-
     if (isFavorite) {
       user.favoriteRecipes = user.favoriteRecipes.filter(
         (favorite) => favorite.toString() !== dto.recipeId,
       );
 
-      createdUser.save();
-      this.recipeModel.updateOne(recipeId, { isFavorite: false });
+      await Promise.all([
+        user.save(),
+        this.recipeModel.updateOne({ _id: recipeId }, { isFavorite: false }),
+      ]);
 
       return {
         message: 'Receta eliminada de favoritos',
@@ -48,10 +48,12 @@ export class AddToFavorite implements AddToFavoriteUseCase {
       };
     }
 
-    user.favoriteRecipes.push(recipeId);
+    user.favoriteRecipes = [...user.favoriteRecipes, recipeId];
 
-    createdUser.save();
-    this.recipeModel.updateOne(recipeId, { isFavorite: true });
+    await Promise.all([
+      user.save(),
+      this.recipeModel.updateOne({ _id: recipeId }, { isFavorite: true }),
+    ]);
 
     return {
       message: 'Receta añadida a favoritos',

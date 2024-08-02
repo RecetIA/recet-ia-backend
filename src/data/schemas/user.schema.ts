@@ -27,8 +27,8 @@ export class User {
   @Prop({ type: String, trim: true, default: null })
   img: string;
 
-  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Recipe' })
-  favoriteRecipes: mongoose.Schema.Types.ObjectId[];
+  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Recipe' }])
+  favoriteRecipes: mongoose.Types.ObjectId[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

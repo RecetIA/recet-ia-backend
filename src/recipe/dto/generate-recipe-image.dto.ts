@@ -1,9 +1,12 @@
-import { IsString, IsMongoId } from 'class-validator';
+import { IsString, IsMongoId, IsNotEmpty } from 'class-validator';
+import { UserResponse } from 'src/interfaces/user.interface';
 
 export class GenerateRecipeImageDto {
   @IsString()
+  @IsNotEmpty()
   prompt: string;
 
   @IsMongoId()
-  creator: string;
+  @IsNotEmpty()
+  user: UserResponse;
 }
