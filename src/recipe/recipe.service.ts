@@ -1,26 +1,69 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-
-import { CreateRecipeDto } from './dto/create-recipe.dto';
-import { Recipe } from 'src/data/schemas/recipe.schema';
-
 import { Model } from 'mongoose';
+
+import { Recipe } from 'src/data/schemas/recipe.schema';
+import { User } from 'src/data/schemas/user.schema';
+import {
+  AddToFavoriteDto,
+  GenerateRecipeDto,
+  GenerateRecipeImageDto,
+} from './dto';
+
+import {
+  AddToFavorite,
+  GenerateRecipe,
+  GenerateRecipeImage,
+  GetFavorites,
+  GetRecipe,
+  GetSavedRecipes,
+} from './use-cases';
+
+import { GptService } from 'src/services/gpt/gpt.service';
+import { FileUploadService } from 'src/services/file-upload/file-upload.service';
 
 @Injectable()
 export class RecipeService {
-  constructor(@InjectModel(Recipe.name) private recipeModel: Model<Recipe>) {}
+  constructor(
+    @InjectModel(User.name) private readonly userModel: Model<User>,
+    @InjectModel(Recipe.name) private recipeModel: Model<Recipe>,
+    private readonly gptService: GptService,
+    private readonly fileService: FileUploadService,
+  ) {}
 
-  create(createRecipeDto: CreateRecipeDto) {
-    return 'This action adds a new recipe + ' + createRecipeDto;
+  async generateRecipe(generateRecipeDto: GenerateRecipeDto) {
+    return await new GenerateRecipe(this.recipeModel, this.gptService).execute(
+      generateRecipeDto,
+    );
   }
 
-  async findAll() {
-    console.log(await this.recipeModel.find().exec());
-    return await this.recipeModel.find().exec();
+  async generateRecipeImage(generateRecipeImageDto: GenerateRecipeImageDto) {
+    return await new GenerateRecipeImage(
+      this.recipeModel,
+      this.gptService,
+      this.fileService,
+    ).execute(generateRecipeImageDto);
   }
 
-  async findOne(id: string) {
-    console.log(await this.recipeModel.findById(id).exec());
-    return this.recipeModel.findById(id).exec();
+  async getFavorites(userId: string) {
+    return await new GetFavorites(this.userModel, this.recipeModel).execute(
+      userId,
+    );
+  }
+
+  async addToFavorite(addToFavoriteDto: AddToFavoriteDto) {
+    return await new AddToFavorite(this.userModel, this.recipeModel).execute(
+      addToFavoriteDto,
+    );
+  }
+
+  async getSavedRecipes(userId: string) {
+    return await new GetSavedRecipes(this.userModel, this.recipeModel).execute(
+      userId,
+    );
+  }
+
+  async getRecipe(id: string) {
+    return await new GetRecipe(this.recipeModel).execute(id);
   }
 }

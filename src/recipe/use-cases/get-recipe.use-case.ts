@@ -1,44 +1,27 @@
-import { HandlerResponse } from "@netlify/functions";
+import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
-import { UserService, RecipeService } from "../../../services";
-import { MongoAdapter } from "../../../config/adapters";
-import { HEADERS } from "../../../config/utils";
+import { MongoAdapter } from 'src/config/adapters';
+import { Recipe } from 'src/data/schemas/recipe.schema';
 
 interface GetRecipeUseCase {
-  execute(recipeId: string): Promise<HandlerResponse>;
+  execute(recipeId: string): Promise<Recipe>;
 }
 
 export class GetRecipe implements GetRecipeUseCase {
-  constructor(
-    private readonly recipeService: RecipeService = new RecipeService()
-  ) {}
+  constructor(@InjectModel(Recipe.name) private recipeModel: Model<Recipe>) {}
 
-  async execute(recipeId: string): Promise<HandlerResponse> {
+  async execute(recipeId: string): Promise<Recipe> {
     if (!MongoAdapter.isMongoID(recipeId)) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
-          message: "Invalid recipe id",
-        }),
-        headers: HEADERS.json,
-      };
+      throw new BadRequestException('Invalid recipe ID');
     }
 
-    const recipe = await this.recipeService.findById(recipeId);
+    const recipe = await this.recipeModel.findById(recipeId).exec();
     if (!recipe) {
-      return {
-        statusCode: 404,
-        body: JSON.stringify({
-          message: "Recipe not found",
-        }),
-        headers: HEADERS.json,
-      };
+      throw new NotFoundException('Recipe not found');
     }
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify(recipe),
-      headers: HEADERS.json,
-    };
+    return recipe;
   }
 }

@@ -1,79 +1,61 @@
-import { HandlerResponse } from "@netlify/functions";
+import { InjectModel } from '@nestjs/mongoose';
+import { NotFoundException } from '@nestjs/common';
 
-import { AddToFavoriteDto } from "../dtos";
-import { RecipeService, UserService } from "../../../services";
-import { MongoAdapter } from "../../../config/adapters";
-import { HEADERS } from "../../../config/utils";
+import { Model } from 'mongoose';
+
+import { User } from 'src/data/schemas/user.schema';
+import { Recipe } from 'src/data/schemas/recipe.schema';
+import { AddToFavoriteDto } from '../dto';
+
+import { MongoAdapter } from 'src/config/adapters';
+import { MessageResponse } from 'src/interfaces/response.interface';
 
 interface AddToFavoriteUseCase {
-  execute: (dto: AddToFavoriteDto) => Promise<HandlerResponse>;
+  execute: (dto: AddToFavoriteDto) => Promise<MessageResponse>;
 }
 
 export class AddToFavorite implements AddToFavoriteUseCase {
   constructor(
-    private readonly userService: UserService = new UserService(),
-    private readonly recipeService: RecipeService = new RecipeService(),
+    @InjectModel(User.name) private readonly userModel: Model<User>,
+    @InjectModel(Recipe.name) private recipeModel: Model<Recipe>,
   ) {}
 
-  async execute(dto: AddToFavoriteDto): Promise<HandlerResponse> {
-    const user = await this.userService.findById(dto.creator);
-    if (!user)
-      return {
-        statusCode: 404,
-        body: JSON.stringify({
-          message: "Usuario no encontrado",
-          error: true,
-        }),
-        headers: HEADERS.json,
-      };
-    
-    const recipe = await this.recipeService.findById(dto.recipeId);
-    if (!recipe)
-      return {
-        statusCode: 404,
-        body: JSON.stringify({
-          message: "Receta no encontrada",
-          error: true,
-        }),
-        headers: HEADERS.json,
-      };
-    
+  async execute(dto: AddToFavoriteDto): Promise<MessageResponse> {
+    const user = await this.userModel.findById(dto.creator).exec();
+    if (!user) throw new NotFoundException('User not found');
+
+    const recipe = await this.recipeModel.findById(dto.recipeId).exec();
+    if (!recipe) throw new NotFoundException('Recipe not found');
+
     const recipeId = MongoAdapter.toMongoID(dto.recipeId);
+    const createdUser = new this.userModel(user);
 
-    const isFavorite = user.favoriteRecipes.some(favorite => favorite.toString() === dto.recipeId);
-    console.log({isFavorite});
+    const isFavorite = user.favoriteRecipes.some(
+      (favorite) => favorite.toString() === dto.recipeId,
+    );
+
     if (isFavorite) {
-      user.favoriteRecipes = user.favoriteRecipes.filter(favorite => favorite.toString() !== dto.recipeId);
-      await Promise.all([
-        this.userService.createUser(user),
-        this.recipeService.updateRecipe(recipeId, { isFavorite: false }),
-      ]);
+      user.favoriteRecipes = user.favoriteRecipes.filter(
+        (favorite) => favorite.toString() !== dto.recipeId,
+      );
+
+      createdUser.save();
+      this.recipeModel.updateOne(recipeId, { isFavorite: false });
 
       return {
-        statusCode: 200,
-        body: JSON.stringify({
-          message: "Receta eliminada de favoritos",
-          error: false,
-        }),
-        headers: HEADERS.json,
+        message: 'Receta eliminada de favoritos',
+        error: false,
       };
     }
-    
-    
+
     user.favoriteRecipes.push(recipeId);
 
-    await Promise.all([
-      this.userService.createUser(user),
-      this.recipeService.updateRecipe(recipeId, { isFavorite: true }),
-    ]);
+    createdUser.save();
+    this.recipeModel.updateOne(recipeId, { isFavorite: true });
 
     return {
-      statusCode: 200,
-      body: JSON.stringify({
-        message: "Receta añadida a favoritos",
-        error: false,
-      }),
-      headers: HEADERS.json,
+      message: 'Receta añadida a favoritos',
+      error: false,
     };
   }
 }

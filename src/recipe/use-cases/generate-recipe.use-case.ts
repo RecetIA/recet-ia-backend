@@ -1,26 +1,23 @@
-import { HandlerResponse } from "@netlify/functions";
+import { InjectModel } from '@nestjs/mongoose';
+import { InternalServerErrorException } from '@nestjs/common';
+import { Model } from 'mongoose';
 
-import { GenerateRecipeDto } from "../dtos";
-import {
-  FileUploadService,
-  GptService,
-  RecipeService,
-} from "../../../services";
+import { GptService } from 'src/services/gpt/gpt.service';
+import { GenerateRecipeDto } from '../dto';
 
-import { Formatted, HEADERS } from "../../../config/utils";
-import { envs } from "../../../config/envs";
+import { Recipe } from 'src/data/schemas/recipe.schema';
+import { Formatted } from 'src/config/utils';
 
-import { z } from "zod";
+import { z } from 'zod';
 
 interface GenerateRecipeUseCase {
-  execute: (dto: GenerateRecipeDto) => Promise<HandlerResponse>;
+  execute: (dto: GenerateRecipeDto) => Promise<Recipe>;
 }
 
 export class GenerateRecipe implements GenerateRecipeUseCase {
-  
   constructor(
+    @InjectModel(Recipe.name) private recipeModel: Model<Recipe>,
     private readonly gptService: GptService,
-    private readonly recipeService: RecipeService = new RecipeService(),
   ) {}
 
   get dataStructure() {
@@ -28,70 +25,70 @@ export class GenerateRecipe implements GenerateRecipeUseCase {
       observations: z
         .string()
         .describe(
-          "Comentarios y observaciones adicionales generales sobre la receta generada"
+          'Comentarios y observaciones adicionales generales sobre la receta generada',
         ),
       recipe: z.object({
         matchRate: z.number().int().positive().max(100).describe(`
         Porcentaje de coincidencia (Del 0 al 100%) de la receta generada con las preferencias y condiciones del usuario
         `),
-        title: z.string().describe("Título de la receta generada"),
+        title: z.string().describe('Título de la receta generada'),
         description: z
           .string()
-          .describe("Breve descripción descripción de la receta generada"),
+          .describe('Breve descripción descripción de la receta generada'),
         cookTimeInMins: z
           .number()
           .int()
           .positive()
-          .describe("Tiempo de preparación de la receta en minutos"),
+          .describe('Tiempo de preparación de la receta en minutos'),
         calories: z
           .number()
           .int()
           .positive()
-          .describe("Número de calorías de la receta"),
+          .describe('Número de calorías de la receta'),
         servings: z
           .number()
           .int()
           .positive()
-          .describe("Número de porciones de la receta"),
+          .describe('Número de porciones de la receta'),
         ingredients: z.array(
           z.object({
-            name: z.string().describe("Nombre del ingrediente"),
+            name: z.string().describe('Nombre del ingrediente'),
             measure: z.object({
-              full: z.string().describe("Medida completa del ingrediente"),
-              short: z.string().describe("Medida corta del ingrediente"),
+              full: z.string().describe('Medida completa del ingrediente'),
+              short: z.string().describe('Medida corta del ingrediente'),
             }),
             quantity: z
               .number()
               .int()
               .positive()
-              .describe("Cantidad del ingrediente"),
+              .describe('Cantidad del ingrediente'),
             isOptional: z
               .boolean()
-              .describe("Indica si el ingrediente es opcional"),
-          })
+              .describe('Indica si el ingrediente es opcional'),
+          }),
         ),
         steps: z
           .array(z.string())
-          .describe("Pasos de preparación de la receta"),
+          .describe('Pasos de preparación de la receta'),
         nutritional: z.object({
-          summary: z.string().describe("Resumen nutricional de la receta"),
+          summary: z.string().describe('Resumen nutricional de la receta'),
           values: z.array(
             z.object({
-              name: z.string().describe("Nombre del valor nutricional"),
+              name: z.string().describe('Nombre del valor nutricional'),
               measure: z.object({
                 full: z
                   .string()
-                  .describe("Medida completa del valor nutricional"),
+                  .describe('Medida completa del valor nutricional'),
                 short: z
                   .string()
-                  .describe("Medida corta del valor nutricional"),
+                  .describe('Medida corta del valor nutricional'),
               }),
               quantity: z
                 .number()
                 .int()
                 .positive()
-                .describe("Cantidad del valor nutricional"),
-            })
+                .describe('Cantidad del valor nutricional'),
+            }),
           ),
         }),
         observations: z.string().describe(`
@@ -112,7 +109,7 @@ export class GenerateRecipe implements GenerateRecipeUseCase {
 
     if (dto.ingredients.length > 0) {
       promptRecipe += `- Ingredientes Disponibles: ${Formatted.fromArrayToString(
-        dto.ingredients
+        dto.ingredients,
       )}.\n`;
     }
 
@@ -121,12 +118,12 @@ export class GenerateRecipe implements GenerateRecipeUseCase {
     }
     if (dto.healthConditions.length > 0) {
       promptRecipe += `- Condiciones de Salud: ${Formatted.fromArrayToString(
-        dto.healthConditions
+        dto.healthConditions,
       )}.\n`;
     }
     if (dto.healthGoals.length > 0) {
       promptRecipe += `- Metas de Salud y Fitness: ${Formatted.fromArrayToString(
-        dto.healthGoals
+        dto.healthGoals,
       )}.\n`;
     }
     if (dto.dietaryPreference) {
@@ -134,7 +131,7 @@ export class GenerateRecipe implements GenerateRecipeUseCase {
     }
     if (dto.foodRestrictions.length > 0) {
       promptRecipe += `- Restricciones Alimentarias: ${Formatted.fromArrayToString(
-        dto.foodRestrictions
+        dto.foodRestrictions,
       )}.\n`;
     }
     if (dto.flavorPreference) {
@@ -142,42 +139,31 @@ export class GenerateRecipe implements GenerateRecipeUseCase {
     }
     if (dto.lifeStyles.length > 0) {
       promptRecipe += `- Estilo de Vida y Ocupación: ${Formatted.fromArrayToString(
-        dto.lifeStyles
+        dto.lifeStyles,
       )}.\n`;
     }
 
     return promptRecipe;
   }
 
-  async execute(dto: GenerateRecipeDto): Promise<HandlerResponse> {
+  async execute(dto: GenerateRecipeDto): Promise<Recipe> {
     const prompt = this.validatePrompt(dto);
 
     try {
       const { object: recipeResponse } = await this.gptService.generateJSON(
         prompt,
-        this.dataStructure
+        this.dataStructure,
       );
 
-       const recipe = await this.recipeService.createUser({
-         ...recipeResponse,
-         creator: dto.creator,
-       });
+      const createdRecipe = new this.recipeModel({
+        ...recipeResponse,
+        creator: dto.creator,
+      });
+      createdRecipe.save();
 
-
-      return {
-        statusCode: 200,
-        body: JSON.stringify(recipe),
-        headers: HEADERS.json,
-      };
+      return createdRecipe;
     } catch (error) {
-      return {
-        statusCode: 500,
-        body: JSON.stringify({
-          message: "Internal Server Error",
-          error: true,
-        }),
-        headers: HEADERS.json,
-      }
+      throw new InternalServerErrorException(error);
     }
   }
 }

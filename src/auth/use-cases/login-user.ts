@@ -1,7 +1,7 @@
 import {
-	Injectable,
-	BadRequestException,
-	InternalServerErrorException,
+  Injectable,
+  BadRequestException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 
 import { InjectModel } from '@nestjs/mongoose';
@@ -17,42 +17,41 @@ type GenerateToken = (payload: any, duration?: string) => Promise<string>;
 
 @Injectable()
 export class LoginUser {
-	private comparePassword: ComparePassword = BcryptAdapter.compare;
-	private generateToken: GenerateToken = JwtAdapter.generateToken;
+  private comparePassword: ComparePassword = BcryptAdapter.compare;
+  private generateToken: GenerateToken = JwtAdapter.generateToken;
 
-	constructor(
-		@InjectModel(User.name)
-		private readonly UserModel: Model<User>,
-	) {}
+  constructor(
+    @InjectModel(User.name) private readonly UserModel: Model<User>,
+  ) {}
 
-	async execute(loginUserDto: LoginUserDto) {
-		const user = await this.UserModel.findOne({ email: loginUserDto.email });
+  async execute(loginUserDto: LoginUserDto) {
+    const user = await this.UserModel.findOne({ email: loginUserDto.email });
 
-		if (!user) {
-			throw new BadRequestException('El usuario no existe');
-		}
+    if (!user) {
+      throw new BadRequestException('El usuario no existe');
+    }
 
-		const isValidPassword = await this.comparePassword(
-			loginUserDto.password,
-			user.password,
-		);
+    const isValidPassword = await this.comparePassword(
+      loginUserDto.password,
+      user.password,
+    );
 
-		if (!isValidPassword) {
-			throw new BadRequestException('Credenciales invalidas');
-		}
+    if (!isValidPassword) {
+      throw new BadRequestException('Credenciales invalidas');
+    }
 
-		try {
-			const token = await this.generateToken({
-				email: user.email,
-			});
+    try {
+      const token = await this.generateToken({
+        email: user.email,
+      });
 
-			return {
-				user,
-				token,
-			};
-		} catch (error) {
-			console.log(error);
-			throw new InternalServerErrorException('Error al generar el token');
-		}
-	}
+      return {
+        user,
+        token,
+      };
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException('Error al generar el token');
+    }
+  }
 }

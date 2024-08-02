@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Recipe } from './recipe.schema';
 
 import { MongoAdapter } from 'src/config/adapters';
+import mongoose from 'mongoose';
 
 @Schema({ timestamps: true })
 export class User {
@@ -27,8 +27,8 @@ export class User {
   @Prop({ type: String, trim: true, default: null })
   img: string;
 
-  @Prop({ type: Recipe, default: [] })
-  favoriteRecipe: Recipe[];
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Recipe' })
+  favoriteRecipes: mongoose.Schema.Types.ObjectId[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -1,60 +1,50 @@
-import { HandlerResponse } from "@netlify/functions";
+import { InjectModel } from '@nestjs/mongoose';
+import { InternalServerErrorException } from '@nestjs/common';
 
-import { GenerateRecipeImageDto } from "../dtos";
-import {
-  FileUploadService,
-  GptService,
-  RecipeService,
-} from "../../../services";
+import { Model } from 'mongoose';
 
-import { envs } from "../../../config/envs";
-import { HEADERS } from "../../../config/utils";
+import { Recipe } from 'src/data/schemas/recipe.schema';
+
+import { GenerateRecipeImageDto } from '../dto';
+import { GptService } from 'src/services/gpt/gpt.service';
+import { FileUploadService } from '../../services/file-upload/file-upload.service';
+
+import { ImageResponse } from 'src/interfaces/response.interface';
 
 interface GenerateRecipeImageUseCase {
-  execute: (dto: GenerateRecipeImageDto) => Promise<HandlerResponse>;
+  execute: (dto: GenerateRecipeImageDto) => Promise<ImageResponse>;
 }
 
 export class GenerateRecipeImage implements GenerateRecipeImageUseCase {
   constructor(
+    @InjectModel(Recipe.name) private recipeModel: Model<Recipe>,
     private readonly gptService: GptService,
-    private readonly recipeService: RecipeService = new RecipeService(),
-    private readonly fileService: FileUploadService = new FileUploadService({
-      cloudName: envs.CLOUDINARY_CLOUD_NAME,
-      apiKey: envs.CLOUDINARY_API_KEY,
-      apiSecret: envs.CLOUDINARY_API_SECRET,
-    })
+    private readonly fileService: FileUploadService,
   ) {}
 
-  async execute(dto: GenerateRecipeImageDto): Promise<HandlerResponse> {
-    
+  async execute(dto: GenerateRecipeImageDto): Promise<ImageResponse> {
     try {
       const recipeImage = await this.gptService.generateImage(dto.prompt);
 
       const uploadResponse = await this.fileService.uploadFile(
         recipeImage.data[0].url!,
-        "recetia"
+        'recetia',
       );
 
-      const recipe = await this.recipeService.updateRecipe(
+      await this.recipeModel.updateOne(
         { creator: dto.creator },
-        { img: uploadResponse.secure_url }
+        { img: uploadResponse.secure_url },
+        {
+          new: true,
+        },
       );
 
       return {
-        statusCode: 200,
-        body: JSON.stringify(recipe),
-        headers: HEADERS.json,
+        urlImage: uploadResponse.secure_url,
       };
     } catch (error) {
       console.log(error);
-      return {
-        statusCode: 500,
-        body: JSON.stringify({
-          message: "Internal Server Error",
-          error: true,
-        }),
-        headers: HEADERS.json,
-      };
+      throw new InternalServerErrorException(error);
     }
   }
 }

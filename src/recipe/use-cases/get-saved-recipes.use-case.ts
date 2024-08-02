@@ -1,47 +1,39 @@
-import { HandlerResponse } from "@netlify/functions";
+import { InjectModel } from '@nestjs/mongoose';
+import { NotFoundException } from '@nestjs/common';
+import { Model } from 'mongoose';
 
-import { UserService, RecipeService } from "../../../services";
-import { HEADERS } from "../../../config/utils";
+import { Recipe } from 'src/data/schemas/recipe.schema';
+import { User } from 'src/data/schemas/user.schema';
 
 interface GetSavedRecipesUseCase {
-  execute(userId: string): Promise<HandlerResponse>;
+  execute(userId: string): Promise<Recipe[]>;
 }
 
 export class GetSavedRecipes implements GetSavedRecipesUseCase {
   constructor(
-    private readonly userService: UserService = new UserService(),
-    private readonly recipeService: RecipeService = new RecipeService()
+    @InjectModel(User.name) private readonly userModel: Model<User>,
+    @InjectModel(Recipe.name) private recipeModel: Model<Recipe>,
   ) {}
 
-  async execute(userId: string): Promise<HandlerResponse> {
-    const user = await this.userService.findById(userId);
-    if (!user)
-      return {
-        statusCode: 404,
-        body: JSON.stringify({
-          message: "Usuario no encontrado",
-          error: true,
-        }),
-        headers: HEADERS.json,
-      };
+  async execute(userId: string): Promise<Recipe[]> {
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) throw new NotFoundException('User not found');
 
-    const savedRecipes = await this.recipeService.findMany(
-      {
-        creator: userId,
-      },
-      {
-        creator: 0,
-        createdAt: 0,
-        updatedAt: 0,
-        observations: 0,
-        recipe: { nutritional: 0 },
-      }
-    );
+    const savedRecipes = await this.recipeModel
+      .find(
+        {
+          creator: userId,
+        },
+        {
+          creator: 0,
+          createdAt: 0,
+          updatedAt: 0,
+          observations: 0,
+          recipe: { nutritional: 0 },
+        },
+      )
+      .exec();
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify(savedRecipes),
-      headers: HEADERS.json,
-    };
+    return savedRecipes;
   }
 }

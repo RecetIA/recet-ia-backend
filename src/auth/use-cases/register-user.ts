@@ -1,7 +1,7 @@
 import {
-	Injectable,
-	BadRequestException,
-	InternalServerErrorException,
+  Injectable,
+  BadRequestException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 
 import { InjectModel } from '@nestjs/mongoose';
@@ -16,37 +16,37 @@ type GenerateToken = (payload: any, duration?: string) => Promise<string>;
 
 @Injectable()
 export class RegisterUser {
-	private hashPasword: HashPassword = BcryptAdapter.hash;
-	private generateToken: GenerateToken = JwtAdapter.generateToken;
+  private hashPasword: HashPassword = BcryptAdapter.hash;
+  private generateToken: GenerateToken = JwtAdapter.generateToken;
 
-	constructor(
-		@InjectModel(User.name)
-		private readonly UserModel: Model<User>,
-	) {}
+  constructor(
+    @InjectModel(User.name)
+    private readonly UserModel: Model<User>,
+  ) {}
 
-	async execute(registerUserDto: RegisterUserDto) {
-		const user = await this.UserModel.findOne({ email: registerUserDto.email });
+  async execute(registerUserDto: RegisterUserDto) {
+    const user = await this.UserModel.findOne({ email: registerUserDto.email });
 
-		if (user) {
-			throw new BadRequestException('El correo ya esta en uso');
-		}
+    if (user) {
+      throw new BadRequestException('El correo ya esta en uso');
+    }
 
-		const passwordHash = await this.hashPasword(registerUserDto.password);
-		const newUser = new this.UserModel({
-			...registerUserDto,
-			password: passwordHash,
-		});
+    const passwordHash = await this.hashPasword(registerUserDto.password);
+    const newUser = new this.UserModel({
+      ...registerUserDto,
+      password: passwordHash,
+    });
 
-		const token = await this.generateToken({ email: newUser.email });
+    const token = await this.generateToken({ email: newUser.email });
 
-		if (!token) {
-			throw new InternalServerErrorException('Error al generar el token');
-		}
+    if (!token) {
+      throw new InternalServerErrorException('Error al generar el token');
+    }
 
-		await newUser.save();
+    await newUser.save();
 
-		return {
-			message: 'Te has registrado exitosamente',
-		};
-	}
+    return {
+      message: 'Te has registrado exitosamente',
+    };
+  }
 }
