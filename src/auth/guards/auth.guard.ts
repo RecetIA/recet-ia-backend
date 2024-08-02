@@ -1,14 +1,14 @@
-import { NextFunction, Request, Response } from 'express';
 import {
   Injectable,
-  NestMiddleware,
+  CanActivate,
+  ExecutionContext,
   UnauthorizedException,
   InternalServerErrorException,
 } from '@nestjs/common';
 
+import { Request } from 'express';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-
 import { JwtAdapter } from 'src/config/adapters';
 import { User } from 'src/data/schemas/user.schema';
 
@@ -17,14 +17,17 @@ interface EmailResponse {
 }
 
 @Injectable()
-export class AuthMiddleware implements NestMiddleware {
+export class AuthGuard implements CanActivate {
   constructor(
     @InjectModel(User.name)
-    private UserModel: Model<User>,
+    private readonly userModel: Model<User>,
   ) {}
 
-  async use(req: Request, res: Response, next: NextFunction) {
-    const authorization = req.header('Authorization');
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest<Request>();
+    const authorization = request.headers['authorization'];
+    console.log('Authorization:', authorization);
+
     if (!authorization) throw new UnauthorizedException('No token provided');
 
     if (!authorization.startsWith('Bearer '))
@@ -36,12 +39,12 @@ export class AuthMiddleware implements NestMiddleware {
       const payload = await JwtAdapter.validateToken<EmailResponse>(token);
       if (!payload) throw new UnauthorizedException('Invalid token');
 
-      const user = await this.UserModel.findOne({ email: payload.email });
+      const user = await this.userModel.findOne({ email: payload.email });
       if (!user) throw new UnauthorizedException('Invalid token - user');
 
-      req.body.user = user;
+      request.body.user = user;
 
-      next();
+      return true;
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException();

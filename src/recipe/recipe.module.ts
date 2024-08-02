@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { Recipe, RecipeSchema } from 'src/data/schemas/recipe.schema';
@@ -9,10 +9,18 @@ import { GptService } from 'src/services/gpt/gpt.service';
 
 import { RecipeController } from './recipe.controller';
 
-import { AuthMiddleware } from 'src/auth/middlewares/auth/auth.middleware';
-import { FileUploadService } from 'src/services/file-upload/file-upload.service';
+import {
+  FileUploadOptions,
+  FileUploadService,
+} from 'src/services/file-upload/file-upload.service';
 
 import { envs } from 'src/config/envs';
+
+const fileUploadOptions: FileUploadOptions = {
+  cloudName: envs.CLOUDINARY_CLOUD_NAME,
+  apiKey: envs.CLOUDINARY_API_KEY,
+  apiSecret: envs.CLOUDINARY_API_SECRET,
+};
 
 @Module({
   imports: [
@@ -24,17 +32,10 @@ import { envs } from 'src/config/envs';
     RecipeService,
     GptService,
     {
-      provide: FileUploadService,
-      useValue: new FileUploadService({
-        cloudName: envs.CLOUDINARY_CLOUD_NAME,
-        apiKey: envs.CLOUDINARY_API_KEY,
-        apiSecret: envs.CLOUDINARY_API_SECRET,
-      }),
+      provide: 'FileUploadOptions',
+      useValue: fileUploadOptions,
     },
+    FileUploadService,
   ],
 })
-export class RecipeModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes('recipe');
-  }
-}
+export class RecipeModule {}

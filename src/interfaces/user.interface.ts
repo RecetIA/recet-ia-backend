@@ -11,3 +11,7 @@ export interface UserResponse {
   updatedAt: string;
   id: string;
 }
+
+export interface User {
+  user: UserResponse;
+}

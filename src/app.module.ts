@@ -6,9 +6,6 @@ import { RecipeModule } from './recipe/recipe.module';
 import { AuthModule } from './auth/auth.module';
 import { SeedModule } from './data/seed/seed.module';
 
-import { GptService } from './services/gpt/gpt.service';
-import { FileUploadService } from './services/file-upload/file-upload.service';
-
 import { envs } from './config/envs';
 @Module({
   imports: [
@@ -21,6 +18,6 @@ import { envs } from './config/envs';
     SeedModule,
   ],
   controllers: [],
-  providers: [GptService, FileUploadService],
+  providers: [],
 })
 export class AppModule {}

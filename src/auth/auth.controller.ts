@@ -1,14 +1,28 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Req, Get, UseGuards } from '@nestjs/common';
+
 import { AuthService } from './auth.service';
 
-import { ChangePasswordDto } from './dto/change-password.dto';
-import { ResetPasswordDto } from './dto/reset-password.dto';
-import { RegisterUserDto } from './dto/register-user.dto';
-import { LoginUserDto } from './dto/login-user.dto';
+import {
+  ChangePasswordDto,
+  LoginUserDto,
+  RegisterUserDto,
+  ResetPasswordDto,
+} from './dto';
+
+import { AuthGuard } from './guards/auth.guard';
+import { User } from 'src/interfaces/user.interface';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Get('validate-email')
+  @UseGuards(AuthGuard)
+  validateEmail(@Req() req: Request) {
+    const { user } = req.body as unknown as User;
+
+    return this.authService.validateEmail(user.email);
+  }
 
   @Post('login')
   login(@Body() loginUserDto: LoginUserDto) {
@@ -16,13 +30,19 @@ export class AuthController {
   }
 
   @Post('register')
-  register(@Body() registerUserDto: RegisterUserDto) {
-    return this.authService.register(registerUserDto);
+  async register(@Body() registerUserDto: RegisterUserDto) {
+    return await this.authService.register(registerUserDto);
   }
 
   @Post('change-password')
-  changePassword(@Body() changePasswordDto: ChangePasswordDto) {
-    return this.authService.changePassword(changePasswordDto);
+  @UseGuards(AuthGuard)
+  changePassword(
+    @Body() changePasswordDto: ChangePasswordDto,
+    @Req() req: Request,
+  ) {
+    const { user } = req.body as unknown as User;
+
+    return this.authService.changePassword(user.email, changePasswordDto);
   }
 
   @Post('reset-password')

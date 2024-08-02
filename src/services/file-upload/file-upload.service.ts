@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { v2 as cloudinary } from 'cloudinary';
 
-interface FileUploadOptions {
+export interface FileUploadOptions {
   cloudName: string;
   apiKey: string;
   apiSecret: string;
@@ -9,7 +9,10 @@ interface FileUploadOptions {
 
 @Injectable()
 export class FileUploadService {
-  constructor({ cloudName, apiKey, apiSecret }: FileUploadOptions) {
+  constructor(
+    @Inject('FileUploadOptions')
+    { cloudName, apiKey, apiSecret }: FileUploadOptions,
+  ) {
     cloudinary.config({
       cloud_name: cloudName,
       api_key: apiKey,

@@ -9,29 +9,46 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 
 import { User, UserDocument } from 'src/data/schemas/user.schema';
-import { LoginUser } from './use-cases/login-user';
-import { EmailService } from 'src/email/email.service';
+import { EmailService } from 'src/services/email.service';
+
 import { RegisterUser } from './use-cases/register-user';
+import { LoginUser } from './use-cases/login-user';
+import { ChangePassword } from './use-cases/change-password';
+import { ResetPassword } from './use-cases/reset-password';
+import { ValidateEmail } from './use-cases/validate-email';
 
 @Injectable()
 export class AuthService {
 	constructor(
 		@InjectModel(User.name)
-		private UserModel: Model<UserDocument>,
+		private userModel: Model<UserDocument>,
 		private emailService: EmailService,
 	) {}
 
 	async login(loginUserDto: LoginUserDto) {
-		return await new LoginUser(this.UserModel).execute(loginUserDto);
+		return await new LoginUser(this.userModel).execute(loginUserDto);
 	}
 
 	async register(registerUserDto: RegisterUserDto) {
-		return await new RegisterUser(this.UserModel).execute(registerUserDto);
+		return await new RegisterUser(this.userModel, this.emailService).execute(
+			registerUserDto,
+		);
 	}
 
-	//TODO: Function to change password
-	changePassword(changePasswordDto: ChangePasswordDto) {}
+	async changePassword(email: string, changePasswordDto: ChangePasswordDto) {
+		return await new ChangePassword(this.userModel).execute(
+			email,
+			changePasswordDto,
+		);
+	}
 
-	//TODO: Function to reset password
-	resetPassword(resetPasswordDto: ResetPasswordDto) {}
+	async resetPassword(resetPasswordDto: ResetPasswordDto) {
+		return await new ResetPassword(this.userModel, this.emailService).execute(
+			resetPasswordDto,
+		);
+	}
+
+	async validateEmail(email: string) {
+		return await new ValidateEmail(this.userModel).execute(email);
+	}
 }
