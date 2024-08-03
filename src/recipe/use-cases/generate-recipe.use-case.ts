@@ -114,12 +114,12 @@ export class GenerateRecipe implements GenerateRecipeUseCase {
     if (dto.lifeStage) {
       promptRecipe += `- Edad y Etapa de Vida: ${dto.lifeStage}.\n`;
     }
-    if (dto.healthConditions.length > 0) {
+    if (dto.healthConditions && dto.healthConditions.length > 0) {
       promptRecipe += `- Condiciones de Salud: ${Formatted.fromArrayToString(
         dto.healthConditions,
       )}.\n`;
     }
-    if (dto.healthGoals.length > 0) {
+    if (dto.healthGoals && dto.healthGoals.length > 0) {
       promptRecipe += `- Metas de Salud y Fitness: ${Formatted.fromArrayToString(
         dto.healthGoals,
       )}.\n`;
@@ -127,7 +127,7 @@ export class GenerateRecipe implements GenerateRecipeUseCase {
     if (dto.dietaryPreference) {
       promptRecipe += `- Preferencias Dietéticas: ${dto.dietaryPreference}.\n`;
     }
-    if (dto.foodRestrictions.length > 0) {
+    if (dto.foodRestrictions && dto.foodRestrictions.length > 0) {
       promptRecipe += `- Restricciones Alimentarias: ${Formatted.fromArrayToString(
         dto.foodRestrictions,
       )}.\n`;
@@ -135,7 +135,7 @@ export class GenerateRecipe implements GenerateRecipeUseCase {
     if (dto.flavorPreference) {
       promptRecipe += `- Preferencias por Sabor y Textura: ${dto.flavorPreference}.\n`;
     }
-    if (dto.lifeStyles.length > 0) {
+    if (dto.lifeStyles && dto.lifeStyles.length > 0) {
       promptRecipe += `- Estilo de Vida y Ocupación: ${Formatted.fromArrayToString(
         dto.lifeStyles,
       )}.\n`;

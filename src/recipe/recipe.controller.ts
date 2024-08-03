@@ -9,7 +9,6 @@ import {
 } from './dto';
 
 import { UserResponse } from 'src/interfaces/user.interface';
-import { Formatted } from 'src/config/utils';
 
 @Controller('recipe')
 export class RecipeController {
@@ -17,21 +16,7 @@ export class RecipeController {
 
   @Post('generate-recipe')
   generateRecipe(@Body() generateRecipeDto: GenerateRecipeDto) {
-    const dto = {
-      ...generateRecipeDto,
-      user: generateRecipeDto.user,
-      ingredients: Formatted.fromStringToArray(generateRecipeDto.ingredients),
-      healthConditions: Formatted.fromStringToArray(
-        generateRecipeDto.healthConditions,
-      ),
-      healthGoals: Formatted.fromStringToArray(generateRecipeDto.healthGoals),
-      foodRestrictions: Formatted.fromStringToArray(
-        generateRecipeDto.foodRestrictions,
-      ),
-      lifeStyles: Formatted.fromStringToArray(generateRecipeDto.lifeStyles),
-    };
-
-    return this.recipeService.generateRecipe(dto);
+    return this.recipeService.generateRecipe(generateRecipeDto);
   }
 
   @Post('generate-recipe-image')
