@@ -9,6 +9,7 @@ import { SeedModule } from './data/seed/seed.module';
 import { User, UserSchema } from './data/schemas/user.schema';
 import { AuthMiddleware } from './middlewares/auth/auth.middleware';
 import { envs } from './config/envs';
+import { UserModule } from './user/user.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -19,12 +20,13 @@ import { envs } from './config/envs';
     RecipeModule,
     AuthModule,
     SeedModule,
+    UserModule,
   ],
   controllers: [],
   providers: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes('recipe');
+    consumer.apply(AuthMiddleware).forRoutes('recipe', 'user');
   }
 }

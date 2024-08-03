@@ -7,7 +7,6 @@ import { User, UserSchema } from 'src/data/schemas/user.schema';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { envs } from 'src/config/envs';
-import { AuthGuard } from './guards/auth.guard';
 
 const emailServiceOptions: EmailServiceOptions = {
   mailerHost: envs.MAILER_HOST,
@@ -28,7 +27,6 @@ const emailServiceOptions: EmailServiceOptions = {
       useValue: emailServiceOptions,
     },
     EmailService,
-    AuthGuard,
   ],
 })
 export class AuthModule {}
