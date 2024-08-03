@@ -57,7 +57,6 @@ export class RegisterUser {
     };
 
     const isSent = await this.emailService.sendEmail(options);
-    console.log(isSent);
 
     if (!isSent)
       throw new InternalServerErrorException(

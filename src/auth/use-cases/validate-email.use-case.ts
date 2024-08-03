@@ -1,9 +1,11 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { JwtAdapter } from 'src/config/adapters';
 
 import { User } from 'src/data/schemas/user.schema';
+import { EmailResponse } from 'src/interfaces/response.interface';
 
 export class ValidateEmail {
   constructor(
@@ -11,9 +13,12 @@ export class ValidateEmail {
     private readonly userModel: Model<User>,
   ) {}
 
-  public async execute(email: string) {
-    console.log(email);
+  public async execute(token: string) {
+    const payload = await JwtAdapter.validateToken<EmailResponse>(token);
 
+    if (!payload) throw new UnauthorizedException('Token inválido');
+
+    const { email } = payload;
     if (!email)
       throw new BadRequestException('Email no encontrado en el token');
 
@@ -21,7 +26,7 @@ export class ValidateEmail {
 
     if (!user) throw new BadRequestException('Usuario no encontrado');
 
-    await this.userModel.findOneAndUpdate(
+    await this.userModel.updateOne(
       { email: user.email },
       { emailValidated: true },
     );

@@ -32,14 +32,12 @@ export class EmailService {
 
     this.transporter = createTransport({
       host: options.mailerHost,
+      secure: true,
       port: options.mailerPort,
-      secure: false,
       auth: {
         user: options.mailerUser,
         pass: options.senderEmailPassword,
       },
-      debug: true,
-      logger: true,
     });
   }
 

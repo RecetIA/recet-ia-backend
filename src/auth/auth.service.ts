@@ -11,44 +11,51 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { User, UserDocument } from 'src/data/schemas/user.schema';
 import { EmailService } from 'src/services/email.service';
 
-import { RegisterUser } from './use-cases/register-user';
-import { LoginUser } from './use-cases/login-user';
-import { ChangePassword } from './use-cases/change-password';
-import { ResetPassword } from './use-cases/reset-password';
-import { ValidateEmail } from './use-cases/validate-email';
+import {
+  ChangePassword,
+  CheckUserToken,
+  LoginUser,
+  RegisterUser,
+  ResetPassword,
+  ValidateEmail,
+} from './use-cases';
 
 @Injectable()
 export class AuthService {
-	constructor(
-		@InjectModel(User.name)
-		private userModel: Model<UserDocument>,
-		private emailService: EmailService,
-	) {}
+  constructor(
+    @InjectModel(User.name)
+    private userModel: Model<UserDocument>,
+    private emailService: EmailService,
+  ) {}
 
-	async login(loginUserDto: LoginUserDto) {
-		return await new LoginUser(this.userModel).execute(loginUserDto);
-	}
+  async validateEmail(token: string) {
+    return await new ValidateEmail(this.userModel).execute(token);
+  }
 
-	async register(registerUserDto: RegisterUserDto) {
-		return await new RegisterUser(this.userModel, this.emailService).execute(
-			registerUserDto,
-		);
-	}
+  async login(loginUserDto: LoginUserDto) {
+    return await new LoginUser(this.userModel).execute(loginUserDto);
+  }
 
-	async changePassword(email: string, changePasswordDto: ChangePasswordDto) {
-		return await new ChangePassword(this.userModel).execute(
-			email,
-			changePasswordDto,
-		);
-	}
+  async register(registerUserDto: RegisterUserDto) {
+    return await new RegisterUser(this.userModel, this.emailService).execute(
+      registerUserDto,
+    );
+  }
 
-	async resetPassword(resetPasswordDto: ResetPasswordDto) {
-		return await new ResetPassword(this.userModel, this.emailService).execute(
-			resetPasswordDto,
-		);
-	}
+  async checkUserToken(token: string) {
+    return await new CheckUserToken(this.userModel).execute(token);
+  }
 
-	async validateEmail(email: string) {
-		return await new ValidateEmail(this.userModel).execute(email);
-	}
+  async changePassword(token: string, changePasswordDto: ChangePasswordDto) {
+    return await new ChangePassword(this.userModel).execute(
+      token,
+      changePasswordDto,
+    );
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    return await new ResetPassword(this.userModel, this.emailService).execute(
+      resetPasswordDto,
+    );
+  }
 }

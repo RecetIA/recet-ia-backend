@@ -18,7 +18,7 @@ export class CheckUserToken {
 
   constructor(
     @InjectModel(User.name)
-    private readonly UserModel: Model<User>,
+    private readonly userModel: Model<User>,
   ) {}
 
   public async execute(token: string) {
@@ -29,7 +29,7 @@ export class CheckUserToken {
     if (!email)
       throw new BadRequestException('Email no encontrado en el token');
 
-    const user = await this.UserModel.findOne({ email });
+    const user = await this.userModel.findOne({ email });
     if (!user) throw new BadRequestException('Usuario no encontrado');
 
     return {

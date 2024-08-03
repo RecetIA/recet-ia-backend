@@ -1,4 +1,4 @@
-import { hashSync, compareSync, genSaltSync } from 'bcrypt';
+import { hashSync, compareSync, genSaltSync } from 'bcryptjs';
 
 export class BcryptAdapter {
   static hash(password: string) {
