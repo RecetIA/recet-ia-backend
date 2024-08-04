@@ -69,7 +69,7 @@ export class GenerateRecipe implements GenerateRecipeUseCase {
         ),
         steps: z
           .array(z.string())
-          .describe('Pasos de preparación de la receta'),
+          .describe('Pasos de preparación de la receta (sin enumerar)'),
         nutritional: z.object({
           summary: z.string().describe('Resumen nutricional de la receta'),
           values: z.array(
