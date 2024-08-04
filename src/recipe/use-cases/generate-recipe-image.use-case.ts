@@ -32,7 +32,7 @@ export class GenerateRecipeImage implements GenerateRecipeImageUseCase {
       );
 
       await this.recipeModel.updateOne(
-        { creator: dto.user.id },
+        { _id: dto.recipeId, creator: dto.user.id },
         { img: uploadResponse.secure_url },
         {
           new: true,

@@ -8,5 +8,9 @@ export class GenerateRecipeImageDto {
 
   @IsMongoId()
   @IsNotEmpty()
+  recipeId: string;
+
+  @IsMongoId()
+  @IsNotEmpty()
   user: UserResponse;
 }
