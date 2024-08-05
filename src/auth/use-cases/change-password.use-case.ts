@@ -36,7 +36,7 @@ export class ChangePassword {
     await this.userModel.updateOne({ email: user.email }, { password });
 
     return {
-      message: 'Password modificado correctamente',
+      message: 'Password modificado correctamente. Inicia sesión.',
     };
   }
 }
