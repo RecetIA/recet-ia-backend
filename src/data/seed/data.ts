@@ -3,14 +3,14 @@ import { BcryptAdapter } from '../../config/adapters/bcrypt.adapter';
 export const seedData = {
   users: [
     {
-      name: 'Moises prado',
-      email: 'moisesfriki15@gmail.com',
+      name: 'User 1',
+      email: 'user1@gmail.com',
       password: BcryptAdapter.hash('123456'),
       emailValidated: true,
     },
     {
-      name: 'ADmoises',
-      email: 'moi.prado20@gmail.com',
+      name: 'User 2',
+      email: 'user2@gmail.com',
       password: BcryptAdapter.hash('123456'),
       emailValidated: true,
     },
@@ -177,6 +177,7 @@ export const seedData = {
         observations:
           'La receta no es dulce, pero cumple con las restricciones alimentarias y condiciones de salud del usuario.',
       },
+      img: 'https://res.cloudinary.com/dufuhfakg/image/upload/v1722731721/recetia/oy8aphcywdtdmbchcadb.png',
     },
     {
       observations:
@@ -332,6 +333,7 @@ export const seedData = {
         observations:
           'La receta no cubre el 100% de los criterios ya que incluye ingredientes opcionales como cebolla, ajo, sal, pimienta y aceite de oliva.',
       },
+      img: 'https://res.cloudinary.com/dufuhfakg/image/upload/v1722749913/recetia/cylwdohppvtnkhnsndrd.png',
     },
     {
       observations:
@@ -552,6 +554,7 @@ export const seedData = {
         observations:
           'La receta utiliza todos los ingredientes disponibles y proporciona una comida balanceada y nutritiva.',
       },
+      img: 'https://res.cloudinary.com/dufuhfakg/image/upload/v1722750448/recetia/qq5aqcbjjgih1hwrzvg2.png',
     },
     {
       observations:
@@ -641,6 +644,7 @@ export const seedData = {
         observations:
           'La receta es adecuada para bebés y cumple con las restricciones alimentarias. Sin embargo, debido a la limitación de ingredientes, puede no cumplir completamente con la meta de mejorar la resistencia.',
       },
+      img: 'https://res.cloudinary.com/dufuhfakg/image/upload/v1722749205/recetia/qsmq4ca0n3weln9vxydo.png',
     },
     {
       observations:

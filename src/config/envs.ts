@@ -15,9 +15,8 @@ const envSchema = z.object({
   SEND_EMAIL: z.enum(['true', 'false']).transform((v) => v === 'true'),
   MAILER_HOST: z.string(),
   MAILER_EMAIL: z.string(),
-  MAILER_SECRET_KEY: z.string(),
   MAILER_PORT: z.coerce.number().positive(),
-  MAILER_USER: z.string(),
+  MAILER_SECRET_KEY: z.string(),
 
   FRONTEND_URL: z.string(),
 });

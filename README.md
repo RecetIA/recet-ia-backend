@@ -1,73 +1,92 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# RecetIA - API REST
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Backend de proyecto **_RecetIA_** que permite generar recetas con inteligencia artificial en base a los ingredientes especificados.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+La base de esta esta _API REST_ está construido con el _SDK_ de _AI_ de _Vercel_ con el modelos de _OpenAI_.
 
-## Description
+___
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Tecnologías y Bibliotecas:
 
-## Installation
+Para el desarrollo _Frontend_ de esta _App Web_ se usaron principalmente las siguientes tecnologías, bibliotecas y servicios:
 
-```bash
-$ npm install
-```
+### Tecnologías:
 
-## Running the app
+- **_NestJS_**
+- **_NodeJS_**
+- **_ExpressJS_**
+- **_TypeScript_**
+- **_Docker_**
+- **_MongoDB_**
 
-```bash
-# development
-$ npm run start
+  ![Tecnologias](https://skillicons.dev/icons?i=nestjs,nodejs,express,typescript,docker,mongo)
 
-# watch mode
-$ npm run start:dev
+### Servicios:
+- **_[Vercel AI SDK](https://sdk.vercel.ai/)_:** SDK que facilita la creación de apps con IA.
+- **_[OpenAI API](https://platform.openai.com/docs/overview)_**: API que ofrece modelos de IA.
+- **_[Cloudinary](https://cloudinary.com/)_:** Servicio en la nube para alojar multimedia.
+- **_[Railway](https://railway.app/)_:** Servicio en donde se aloja el backend de _NestJS_ y la BD de _MongoDB_
 
-# production mode
-$ npm run start:prod
-```
+### Bibliotecas:
+- **_[Zod](https://zod.dev/)_:** Biblioteca para validar y declarar esquemas
+- **_[Nodemailer](https://nodemailer.com/m)_** Biblioteca para enviar emails
+- **_[Moongose](https://mongoosejs.com/)_** _ODM_ para manipular base de datos de _MongoDB_
 
-## Test
+---
 
-```bash
-# unit tests
-$ npm run test
+### Pasos para levantar backend localmente:
 
-# e2e tests
-$ npm run test:e2e
+1. Instalar dependencias:
+   ```
+   npm install
+   ```
 
-# test coverage
-$ npm run test:cov
-```
+2. Crear archivo `.env` y configurar las siguientes variables de entorno:
+   ```bash
+    # Api Key de OpenIA
+    OPENAI_API_KEY=
+    # Url de conexión de MongoDB
+    MONGO_URL=
 
-## Support
+    # Usuario de BD local de mongo
+    MONGO_USER=dev
+    # Password de BD local de mongo
+    MONGO_PASS=123456
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+    # Keys de cloudinary
+    CLOUDINARY_CLOUD_NAME=
+    CLOUDINARY_API_KEY=
+    CLOUDINARY_API_SECRET=
 
-## Stay in touch
+    # SEED de JWT para autenticación
+    JWT_SEED=
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+    # Booleano que habilita/deshabilita envío de correo
+    SEND_EMAIL=true
+    # Host de para envío de emails
+    MAILER_HOST=smtp.gmail.com
+    # Correo que envía los emails
+    MAILER_EMAIL=
+    # Puerto para envío de emails
+    MAILER_PORT=465
+    # Secret Key de email que envía los correos
+    MAILER_SECRET_KEY=
 
-## License
+    # Dominio o host de frontend que usa este backend
+    FRONTEND_URL=
+   ```
 
-Nest is [MIT licensed](LICENSE).
+3. Montar BD de mongo con docker:
+    ```
+    docker-compose up -d
+    ```
+
+4. Ejecutar SEED para poblar la BD con usuarios y recetas de prueba:
+    ```
+    npm run seed
+    ```
+
+5. Correr servidor local de nestJS:
+    ```
+    npm run start:dev
+    ```
